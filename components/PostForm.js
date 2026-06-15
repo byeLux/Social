@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function PostForm({publish}) {
 
@@ -19,7 +20,8 @@ export default function PostForm({publish}) {
             </View>
             <View>
                 <Pressable style={styles.buttonStyle} onPress={() => publish(content)}>
-                    <Text style={styles.buttonText}>Send your post</Text>
+                    <Text style={styles.buttonText}>POST </Text>
+                    <Ionicons name="send" size={24} color="#565656" />
                 </Pressable>
             </View>
         </View>
@@ -67,6 +69,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFD99F',
         borderRadius: 5,
         height: 45,
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
     },

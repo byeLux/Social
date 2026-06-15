@@ -9,7 +9,7 @@ export default function LoginForm({ onLoginSuccess }) {
     const [password, setPassword] = useState('');
     
 
-    const API_BASE = 'http://10.10.55.23:8888/socialApi';
+    const API_BASE = 'http://10.10.55.199:8888/socialApi';
 
     async function handleSubmit() {
         const res = await fetch(`${API_BASE}/Api/endpoint/login.php`, {

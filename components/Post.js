@@ -1,26 +1,60 @@
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 
-export default function Post({id, user_id, role, content, creation_date, onDelete}) {
+export default function Post({id, username, role, content, creation_date, onDelete, onEdit}) {
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [text, setText] = useState(content);
     return (
         <View style={styles.container}>
             <View style={styles.postHeader}>
-                <Text style={styles.yellowText}>{user_id}</Text>
+                <Text style={styles.yellowText}>{username}</Text>
                 <Text style={styles.thinText}>{role}</Text>
             </View>
             <View style={styles.postBody}>
-                <Text style={styles.greyText}>{content}</Text>
-            </View>
-            <View style={styles.postFooter}>
-                <Text style={styles.thinText}>{creation_date}</Text>
-                <View style={styles.buttonContainer}>
-                    <Pressable style={styles.button} onPress={() => {showEdit()}}>
-                        <Text>Edit</Text>
-                    </Pressable>
-                    <Pressable style={styles.button} onPress={() => {onDelete(id)}}>
-                        <Text>Delete</Text>
-                    </Pressable>
+                {!isEditing ? (
+                    <Text style={styles.greyText}>{content}</Text>
+                ) : (
+                    <TextInput
+                        value={text}
+                        onChangeText={setText}
+                        style={styles.greyText}
+                    />
+                )}
+                <View style={styles.postDate}>
+                    <Text style={styles.thinText}>{creation_date}</Text>
                 </View>
             </View>
+            
+            
+            {!isEditing ? (
+                <View style={styles.postFooter}>
+                    <View style={styles.buttonContainer}>
+                        <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                            <Ionicons name="create" size={24} color="green" />
+                        </Pressable>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}}>
+                            <Ionicons name="trash" size={24} color="red" />
+                        </Pressable>
+                    </View>
+                </View>
+            ) : (
+                <View style={styles.postFooter}>
+                    <View style={styles.buttonContainer}>
+                        <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                            <Ionicons name="arrow-back" size={24} color="#202020" />
+                        </Pressable>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id)}}>
+                            <Ionicons name="save" size={24} color="green" />
+                        </Pressable>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }
@@ -43,19 +77,27 @@ const styles = StyleSheet.create({
     },
     postBody: {
         flex: 2,
+        marginBottom: 5,
+    },
+    postDate: {
+        flex: 1,
+        alignItems: 'flex-end',
+        borderWidth: 1,
+        borderBottomColor: '#5b5b5b',
     },
     postFooter: {
         flex: 1,
-        alignItems: 'flex-end',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+
     },
     buttonContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'flex-end',
+        width: 45,
+        margin: 5,
     },
     thinText: {
         color: '#FFD99F',
-        fontWeight: 'thin', 
+        fontWeight: 'thin',
     },
     yellowText: {
         color: '#FFD99F',
@@ -75,9 +117,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#565656',
         fontWeight: 'bold',
-    },
-    footer: {
-        flex: 3,
+        padding: 5,
     },
     greyText: {
         color: '#c8c8c8',
