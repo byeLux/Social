@@ -49,7 +49,7 @@ export default function Post({id, username, role, content, creation_date, onDele
                         </Pressable>
                     </View>
                     <View style={styles.buttonContainer}>
-                        <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id)}}>
+                        <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}}>
                             <Ionicons name="save" size={24} color="green" />
                         </Pressable>
                     </View>

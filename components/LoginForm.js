@@ -1,25 +1,40 @@
 import { useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LoginError from './LoginError';
+import Error from './Error';
 
 export default function LoginForm({ onLoginSuccess }) {
     // 1. Tieni tu i valori in uno state
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     
 
-    const API_BASE = 'http://10.10.55.199:8888/socialApi';
+    const API_BASE = 'http://10.10.53.118/socialApi';
 
     async function handleSubmit() {
-        const res = await fetch(`${API_BASE}/Api/endpoint/login.php`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ username, password })
-        });
+        console.log('submitting...');
+        try {
+            const res = await fetch(`${API_BASE}/Api/endpoint/login.php`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ username, password })
+            });
 
-        const result = await res.json();
-        return result;
+            const result = await res.json();
+            if(!res.ok) {
+                //console.error('Login failed:', result.error);
+                setErrorMessage('Login failed. Please check your credentials.');
+                setError(true);
+                return;
+            }
+            return result;
+        } catch (error) {
+            //console.error(error);
+            setErrorMessage('An error occurred while trying to log in. Please try again later.');
+            setError(true);
+        }
     }
 
     return (
@@ -61,7 +76,14 @@ export default function LoginForm({ onLoginSuccess }) {
                 </View>
             </View>
             <View style={styles.footer}>
-                {/* <Button title='click here!'></Button> */}
+                {error ? (
+                    <Error error={errorMessage} />
+                ) : (
+                    <View>
+                        {/* <Text style={styles.whiteText}>Don't have an account?</Text>
+                        <Button title="Sign Up" onPress={() => console.log('Sign Up pressed')} /> */}
+                    </View>
+                )}
             </View>
         </SafeAreaView>
     );
@@ -100,6 +122,8 @@ const styles = StyleSheet.create({
     },
     footer: {
         flex: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     whiteText: {
         color: 'white',

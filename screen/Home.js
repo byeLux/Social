@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button, ScrollView, FlatList, Image} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Post from '../components/Post';
+import Error from '../components/Error';
 import PostForm from '../components/PostForm';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function Home({token}) {
+export default function Home({token, onLogout}) {
 
-    const API_BASE = 'http://10.10.55.199:8888/socialApi';
+    const API_BASE = 'http://10.10.53.118/socialApi';
 
     const [lastId, setId] = useState();
+
+    const [error, setError] = useState(false);
+
+    const [errorMessage, setErrorMessage] = useState('');
 
     const [posts, setPosts] = useState([]);
 
@@ -20,69 +25,167 @@ export default function Home({token}) {
 
     function getUser(token) {
         console.log('getting user...')
-        axios
-            .get(`${API_BASE}/Api/endpoint/getUser.php`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            })
-            .then((response) => {
-                console.log(JSON.stringify(response.data.user, null, 2));
-                setUser(response.data.user);
-                setUserName(response.data.user.username);
-                console.log('username is: ' + userName);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        try {
+            axios
+                .get(`${API_BASE}/Api/endpoint/getUser.php`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    },
+                })
+                .then((response) => {
+                    console.log(JSON.stringify(response.data.user, null, 2));
+                    setError(false);
+                    setErrorMessage('');
+                    setUser(response.data.user);
+                    setUserName(response.data.user.username);
+                    console.log('username is: ' + userName);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setError(true);
+                    setErrorMessage('An error occurred while fetching user data.');
+                });
+        } catch (error) {
+            console.error(error);
+            setError(true);
+            setErrorMessage('Api error.');
+        }
     }
 
     function loadPosts(token) {
         console.log('loading posts...');
-        axios
-            .get(`${API_BASE}/Api/controller/PostController.php`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
+        try {
+            axios
+                .get(`${API_BASE}/Api/controller/PostController.php`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    },
+                })
+                .then((response) => {
+                    console.log(JSON.stringify(response.data.posts, null, 2));
+                    setError(false);
+                    setErrorMessage('');
+                    setPosts(response.data.posts);
+                    console.log('success');
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setError(true);
+                    setErrorMessage('An error occurred while fetching posts.');
+                });
+        } catch (error) {
+            console.error(error);
+            setError(true);
+            setErrorMessage('Api error.');
+        }
+    }
+
+    function handleEdit(id, editedContent) {
+        try {
+            axios.post(`${API_BASE}/Api/endpoint/editPost.php`,
+                {
+                    post_id: id,
+                    content: editedContent,
                 },
-            })
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
             .then((response) => {
-                console.log(JSON.stringify(response.data.posts, null, 2));
+                //console.log(JSON.stringify(response.data, null, 2));
+                setError(false);
+                setErrorMessage('');
                 setPosts(response.data.posts);
-                console.log('success');
+                loadPosts(token);
             })
             .catch((error) => {
                 console.error(error);
+                setError(true);
+                setErrorMessage('An error occurred while editing the post.');
             });
-    }
-
-    function handleEdit(id) {
-        console.log(id);
+        } catch (error) {
+            console.error(error);
+            setError(true);
+            setErrorMessage('Api error.');
+        }
     }
 
     function handleDelete(id) {
-        setPosts(posts.filter(p => p.id !== id));
+        try {
+            axios.post(`${API_BASE}/Api/endpoint/deletePost.php`,
+                {
+                    post_id: id
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+            .then((response) => {
+                //console.log(JSON.stringify(response.data, null, 2));
+                setError(false);
+                setErrorMessage('');
+                setPosts(response.data.posts);
+                loadPosts(token);
+            })
+            .catch((error) => {
+                console.error(error);
+                setError(true);
+                setErrorMessage('An error occurred while deleting the post.');
+            });
+        } catch (error) {
+            console.error(error);
+            setError(true);
+            setErrorMessage('Api error.');
+        }
     }
 
     function handlePublish(text) {
-        const newId = Math.max(...posts.map(p => p.id)) + 1;
-        // const newId = lastId + 1;
-        // setId(newId);
-        setPosts([
-            ...posts,
-            {
-                id: newId,
-                user_id: user.user_id,
-                username: user.username,
-                role: user.role,
-                content: text,
-                creation_date: Date.now(),
-                delete_date: false
-            }
-        ]);
+        try {
+            axios.post(`${API_BASE}/Api/endpoint/createPost.php`,
+                {
+                    user_id: user.user_id,
+                    content: text
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+            .then((response) => {
+                //console.log(JSON.stringify(response.data, null, 2));
+                setError(false);
+                setErrorMessage('');
+                setPosts(response.data.posts);
+                loadPosts(token);
+            })
+            .catch((error) => {
+                console.error(error);
+                setError(true);
+                setErrorMessage('An error occurred while creating the post.');
+            });
+        } catch (error) {
+            console.error(error);
+            setError(true);
+            setErrorMessage('Api error.');
+        }
+    }
 
-    };
+    function handleLogout() {
+        onLogout(true);
+    }
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -97,7 +200,7 @@ export default function Home({token}) {
                     <Text style={[styles.yellowText, styles.sizeText]}>HOME</Text>
                 </View>
                 <View style={styles.right}>
-                    <Pressable style={styles.logOutButton}>
+                    <Pressable style={styles.logOutButton} onPress={handleLogout}>
                         <Ionicons name="log-out" size={24} color="#202020" />
                     </Pressable>
                 </View>
@@ -107,11 +210,14 @@ export default function Home({token}) {
                 <PostForm publish={handlePublish}/>
             </View>
 
-            <FlatList
+            {!error ? (
+              <FlatList
                 data={posts}
                 renderItem={({ item }) => <Post {...item} onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
-            />
+                keyboardShouldPersistTaps="handled"
+            />  
+            ) : (<Error error={errorMessage} />)}
 
             <Pressable onPress={() => {loadPosts(token); getUser(token);}} style={styles.buttonStyle}>
                 <Text>LOAD POSTS</Text>

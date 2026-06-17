@@ -4,14 +4,13 @@ import { useEffect } from 'react';
 import * as NavigationBar from 'expo-navigation-bar';
 import LoginForm from './components/LoginForm';
 import Home from './screen/Home';
-import axios from 'axios';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tokenFromApi, setToken] = useState('');
 
   useEffect(() => {
-    //NavigationBar.setBackgroundColorAsync('#1a1a1a');
+    NavigationBar.setBackgroundColorAsync('#1a1a1a');
     NavigationBar.setButtonStyleAsync('light'); // icone bianche
   }, []);
 
@@ -24,7 +23,10 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <Home token={tokenFromApi}/>
+      <Home token={tokenFromApi} onLogout={() => {
+          setIsLoggedIn(false);
+          setToken('');
+      }} />
     </SafeAreaProvider>
   );
 }
