@@ -19,7 +19,7 @@ export default function PostForm({publish}) {
                 ></TextInput>
             </View>
             <View>
-                <Pressable style={styles.buttonStyle} onPress={() => publish(content)}>
+                <Pressable style={styles.buttonStyle} onPress={() => {publish(content); setContent('');}}>
                     <Text style={styles.buttonText}>POST </Text>
                     <Ionicons name="send" size={24} color="#565656" />
                 </Pressable>
