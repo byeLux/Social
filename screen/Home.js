@@ -25,29 +25,37 @@ export default function Home({token, onLogout}) {
 
     const [userRole, setUserRole] = useState('');
 
+    const [totalPages, setTotalPages] = useState(1);
+
+    const capitalize = (str = '') => {
+        return str.length
+            ? str.charAt(0).toUpperCase() + str.slice(1)
+            : '';
+    };
+
     function getUser(token) {
         console.log('getting user...')
         try {
             axios.get(`${API_BASE}/Api/endpoint/getUser.php`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            })
-            .then((response) => {
-                //console.log(JSON.stringify(response.data.user, null, 2));
-                setError(false);
-                setErrorMessage('');
-                setUser(response.data.user);
-                setUserName(response.data.user.username);
-                setUserRole(response.data.user.role);
-                console.log('username is: ' + userName);
-            })
-            .catch((error) => {
-                console.error(error);
-                setError(true);
-                setErrorMessage('An error occurred while fetching user data.');
-            });
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json',
+                    },
+                })
+                .then((response) => {
+                    //console.log(JSON.stringify(response.data.user, null, 2));
+                    setError(false);
+                    setErrorMessage('');
+                    setUser(response.data.user);
+                    setUserName(capitalize(response.data.user.username));
+                    setUserRole(response.data.user.role);
+                    console.log('User loaded!');
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setError(true);
+                    setErrorMessage('An error occurred while fetching user data.');
+                });
         } catch (error) {
             console.error(error);
             setError(true);
@@ -55,21 +63,23 @@ export default function Home({token, onLogout}) {
         }
     }
 
-    function loadPosts(token) {
+    function loadPosts(token, pages) {
         console.log('loading posts...');
         try {
-            axios.get(`${API_BASE}/Api/controller/PostController.php`, {
+            axios.get(`${API_BASE}/Api/controller/PostController.php?page=${pages}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
                 },
             })
             .then((response) => {
-                //console.log(JSON.stringify(response.data.posts, null, 2));
+                //console.log(JSON.stringify(response.data, null, 2));
                 setError(false);
                 setErrorMessage('');
                 setPosts(response.data.posts);
-                console.log('success');
+                setTotalPages(response.data.pagination.total_pages);
+                getUser(token);
+                console.log('Posts loaded!');
             })
             .catch((error) => {
                 console.error(error);
@@ -201,7 +211,7 @@ export default function Home({token, onLogout}) {
                     <Text style={[styles.yellowText, styles.sizeText]}>HOME</Text>
                 </View>
                 <View style={styles.right}>
-                    <Pressable style={styles.logOutButton} onPress={handleLogout}>
+                    <Pressable style={styles.logOutButton} onPress={handleLogout} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                         <Ionicons name="log-out" size={24} color="#202020" />
                     </Pressable>
                 </View>
@@ -220,9 +230,19 @@ export default function Home({token, onLogout}) {
             />  
             ) : (<Error error={errorMessage} />)}
 
-            <Pressable onPress={() => {loadPosts(token); getUser(token);}} style={styles.buttonStyle}>
+            <View style={styles.pagination}>
+                {
+                    [...Array(totalPages)].map((_, i) => (
+                        <Pressable key={i + 1} onPress={() => {loadPosts(token, i + 1)}} style={styles.pageButton} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                            <Text style={styles.buttonText}>{i + 1}</Text>
+                        </Pressable>
+                    ))
+                }
+            </View>
+
+            {/* <Pressable onPress={() => {loadPosts(token); getUser(token);}} style={styles.buttonStyle}>
                 <Text>LOAD POSTS</Text>
-            </Pressable>
+            </Pressable> */}
         </SafeAreaView>
     );
 }
@@ -293,4 +313,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#cfcfcf',
         borderRadius: 5,
     },
+    pagination: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    pageButton: {
+        backgroundColor: '#FFD99F',
+        borderRadius: 5,
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 45,
+    }
 });

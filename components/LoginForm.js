@@ -71,7 +71,7 @@ export default function LoginForm({ onLoginSuccess }) {
                         const ok = await handleSubmit(username, password);
                         console.log(ok);
                         if (ok.token) onLoginSuccess(ok.token); // ✅ cambia schermata
-                    }} style={styles.buttonStyle}>
+                    }} style={styles.buttonStyle} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                         <Text style={styles.buttonText}>LOGIN</Text>
                     </Pressable>
                 </View>

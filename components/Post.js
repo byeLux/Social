@@ -6,11 +6,15 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
 
     const [isEditing, setIsEditing] = useState(false);
     const [text, setText] = useState(content);
-    console.log("ROLE IN POST:", role);
+    const capitalize = (str = '') => {
+        return str.length
+            ? str.charAt(0).toUpperCase() + str.slice(1)
+            : '';
+    };
     return (
         <View style={styles.container}>
             <View style={styles.postHeader}>
-                <Text style={styles.yellowText}>{username}</Text>
+                <Text style={styles.yellowText}>{capitalize(username)}</Text>
                 <Text style={styles.thinText}>{role}</Text>
             </View>
             <View style={styles.postBody}>
@@ -40,12 +44,12 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                     !isEditing ? (
                         <View style={styles.postFooter}>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                                     <Ionicons name="create" size={24} color="green" />
                                 </Pressable>
                             </View>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                                     <Ionicons name="trash" size={24} color="red" />
                                 </Pressable>
                             </View>
@@ -53,12 +57,12 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                     ) : (
                         <View style={styles.postFooter}>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                                     <Ionicons name="arrow-back" size={24} color="#202020" />
                                 </Pressable>
                             </View>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
                                     <Ionicons name="save" size={24} color="green" />
                                 </Pressable>
                             </View>
@@ -85,14 +89,17 @@ const styles = StyleSheet.create({
         flex: 1,
         borderWidth: 1,
         borderBottomColor: '#5b5b5b',
+        paddingBottom: 5,
     },
     postBody: {
         flex: 2,
         marginBottom: 5,
+        marginTop: 5,
     },
     postDate: {
         flex: 1,
         alignItems: 'flex-end',
+        paddingBottom: 5,
     },
     postFooter: {
         flex: 1,
