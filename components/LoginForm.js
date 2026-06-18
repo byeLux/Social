@@ -11,7 +11,7 @@ export default function LoginForm({ onLoginSuccess }) {
     const [errorMessage, setErrorMessage] = useState('');
     
 
-    const API_BASE = 'http://10.10.53.118/socialApi';
+    const API_BASE = 'http://10.10.54.67/socialApi';
 
     async function handleSubmit() {
         console.log('submitting...');
@@ -21,18 +21,19 @@ export default function LoginForm({ onLoginSuccess }) {
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ username, password })
             });
-
             const result = await res.json();
             if(!res.ok) {
                 //console.error('Login failed:', result.error);
-                setErrorMessage('Login failed. Please check your credentials.');
+                setErrorMessage('Login failed.\nPlease check your credentials.');
                 setError(true);
                 return;
             }
+            setError(false);
+            setErrorMessage('');
             return result;
         } catch (error) {
             //console.error(error);
-            setErrorMessage('An error occurred while trying to log in. Please try again later.');
+            setErrorMessage('An error occurred while trying to log in.\nPlease try again later.');
             setError(true);
         }
     }
@@ -76,14 +77,7 @@ export default function LoginForm({ onLoginSuccess }) {
                 </View>
             </View>
             <View style={styles.footer}>
-                {error ? (
-                    <Error error={errorMessage} />
-                ) : (
-                    <View>
-                        {/* <Text style={styles.whiteText}>Don't have an account?</Text>
-                        <Button title="Sign Up" onPress={() => console.log('Sign Up pressed')} /> */}
-                    </View>
-                )}
+                {error && <Error error={errorMessage} />}
             </View>
         </SafeAreaView>
     );

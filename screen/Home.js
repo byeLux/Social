@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function Home({token, onLogout}) {
 
-    const API_BASE = 'http://10.10.53.118/socialApi';
+    const API_BASE = 'http://10.10.54.67/socialApi';
 
     const [lastId, setId] = useState();
 
@@ -23,29 +23,31 @@ export default function Home({token, onLogout}) {
 
     const [userName, setUserName] = useState('loading...');
 
+    const [userRole, setUserRole] = useState('');
+
     function getUser(token) {
         console.log('getting user...')
         try {
-            axios
-                .get(`${API_BASE}/Api/endpoint/getUser.php`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                })
-                .then((response) => {
-                    console.log(JSON.stringify(response.data.user, null, 2));
-                    setError(false);
-                    setErrorMessage('');
-                    setUser(response.data.user);
-                    setUserName(response.data.user.username);
-                    console.log('username is: ' + userName);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError(true);
-                    setErrorMessage('An error occurred while fetching user data.');
-                });
+            axios.get(`${API_BASE}/Api/endpoint/getUser.php`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            })
+            .then((response) => {
+                //console.log(JSON.stringify(response.data.user, null, 2));
+                setError(false);
+                setErrorMessage('');
+                setUser(response.data.user);
+                setUserName(response.data.user.username);
+                setUserRole(response.data.user.role);
+                console.log('username is: ' + userName);
+            })
+            .catch((error) => {
+                console.error(error);
+                setError(true);
+                setErrorMessage('An error occurred while fetching user data.');
+            });
         } catch (error) {
             console.error(error);
             setError(true);
@@ -56,25 +58,24 @@ export default function Home({token, onLogout}) {
     function loadPosts(token) {
         console.log('loading posts...');
         try {
-            axios
-                .get(`${API_BASE}/Api/controller/PostController.php`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                })
-                .then((response) => {
-                    console.log(JSON.stringify(response.data.posts, null, 2));
-                    setError(false);
-                    setErrorMessage('');
-                    setPosts(response.data.posts);
-                    console.log('success');
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError(true);
-                    setErrorMessage('An error occurred while fetching posts.');
-                });
+            axios.get(`${API_BASE}/Api/controller/PostController.php`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            })
+            .then((response) => {
+                //console.log(JSON.stringify(response.data.posts, null, 2));
+                setError(false);
+                setErrorMessage('');
+                setPosts(response.data.posts);
+                console.log('success');
+            })
+            .catch((error) => {
+                console.error(error);
+                setError(true);
+                setErrorMessage('An error occurred while fetching posts.');
+            });
         } catch (error) {
             console.error(error);
             setError(true);
@@ -213,7 +214,7 @@ export default function Home({token, onLogout}) {
             {!error ? (
               <FlatList
                 data={posts}
-                renderItem={({ item }) => <Post {...item} onDelete={handleDelete} onEdit={handleEdit}/>}
+                renderItem={({ item }) => <Post {...item} isAdmin={userRole === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
             />  

@@ -2,10 +2,11 @@ import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
-export default function Post({id, username, role, content, creation_date, onDelete, onEdit}) {
+export default function Post({id, username, role, isAdmin, content, creation_date, onDelete, onEdit}) {
 
     const [isEditing, setIsEditing] = useState(false);
     const [text, setText] = useState(content);
+    console.log("ROLE IN POST:", role);
     return (
         <View style={styles.container}>
             <View style={styles.postHeader}>
@@ -13,48 +14,58 @@ export default function Post({id, username, role, content, creation_date, onDele
                 <Text style={styles.thinText}>{role}</Text>
             </View>
             <View style={styles.postBody}>
-                {!isEditing ? (
-                    <Text style={styles.greyText}>{content}</Text>
-                ) : (
-                    <TextInput
-                        value={text}
-                        onChangeText={setText}
-                        style={styles.greyText}
-                    />
-                )}
-                <View style={styles.postDate}>
+                {
+                    isAdmin ? (
+                        isEditing? (
+                            <TextInput
+                                value={text}
+                                onChangeText={setText}
+                                style={styles.greyText}
+                            />
+                        ) : (
+                            <Text style={styles.greyText}>{content}</Text>
+                        )
+                    ) : 
+                    (
+                        <Text style={styles.greyText}>{content}</Text>
+                    )
+                }
+                <View style={[styles.postDate, isAdmin && { borderBottomColor: '#5b5b5b', borderBottomWidth: 1 }]}>
                     <Text style={styles.thinText}>{creation_date}</Text>
                 </View>
             </View>
             
-            
-            {!isEditing ? (
-                <View style={styles.postFooter}>
-                    <View style={styles.buttonContainer}>
-                        <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
-                            <Ionicons name="create" size={24} color="green" />
-                        </Pressable>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                        <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}}>
-                            <Ionicons name="trash" size={24} color="red" />
-                        </Pressable>
-                    </View>
-                </View>
-            ) : (
-                <View style={styles.postFooter}>
-                    <View style={styles.buttonContainer}>
-                        <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
-                            <Ionicons name="arrow-back" size={24} color="#202020" />
-                        </Pressable>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                        <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}}>
-                            <Ionicons name="save" size={24} color="green" />
-                        </Pressable>
-                    </View>
-                </View>
-            )}
+            {
+                isAdmin && (
+                    !isEditing ? (
+                        <View style={styles.postFooter}>
+                            <View style={styles.buttonContainer}>
+                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                                    <Ionicons name="create" size={24} color="green" />
+                                </Pressable>
+                            </View>
+                            <View style={styles.buttonContainer}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}}>
+                                    <Ionicons name="trash" size={24} color="red" />
+                                </Pressable>
+                            </View>
+                        </View>
+                    ) : (
+                        <View style={styles.postFooter}>
+                            <View style={styles.buttonContainer}>
+                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)}>
+                                    <Ionicons name="arrow-back" size={24} color="#202020" />
+                                </Pressable>
+                            </View>
+                            <View style={styles.buttonContainer}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}}>
+                                    <Ionicons name="save" size={24} color="green" />
+                                </Pressable>
+                            </View>
+                        </View>
+                    )
+                )
+            }
         </View>
     );
 }
@@ -82,8 +93,6 @@ const styles = StyleSheet.create({
     postDate: {
         flex: 1,
         alignItems: 'flex-end',
-        borderWidth: 1,
-        borderBottomColor: '#5b5b5b',
     },
     postFooter: {
         flex: 1,
