@@ -6,6 +6,7 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
 
     const [isEditing, setIsEditing] = useState(false);
     const [text, setText] = useState(content);
+    const date = new Date(creation_date);
     const capitalize = (str = '') => {
         return str.length
             ? str.charAt(0).toUpperCase() + str.slice(1)
@@ -35,7 +36,7 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                     )
                 }
                 <View style={[styles.postDate, isAdmin && { borderBottomColor: '#5b5b5b', borderBottomWidth: 1 }]}>
-                    <Text style={styles.thinText}>{creation_date}</Text>
+                    <Text style={styles.thinText}>{date.toLocaleString()}</Text>
                 </View>
             </View>
             
