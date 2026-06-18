@@ -211,7 +211,7 @@ export default function Home({token, onLogout}) {
                     <Text style={[styles.yellowText, styles.sizeText]}>HOME</Text>
                 </View>
                 <View style={styles.right}>
-                    <Pressable style={styles.logOutButton} onPress={handleLogout} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                    <Pressable style={styles.logOutButton} onPress={handleLogout} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                         <Ionicons name="log-out" size={24} color="#202020" />
                     </Pressable>
                 </View>
@@ -233,7 +233,7 @@ export default function Home({token, onLogout}) {
             <View style={styles.pagination}>
                 {
                     [...Array(totalPages)].map((_, i) => (
-                        <Pressable key={i + 1} onPress={() => {loadPosts(token, i + 1)}} style={styles.pageButton} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                        <Pressable key={i + 1} onPress={() => {loadPosts(token, i + 1)}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                             <Text style={styles.buttonText}>{i + 1}</Text>
                         </Pressable>
                     ))

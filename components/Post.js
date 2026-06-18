@@ -15,7 +15,7 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
         <View style={styles.container}>
             <View style={styles.postHeader}>
                 <Text style={styles.yellowText}>{capitalize(username)}</Text>
-                <Text style={styles.thinText}>{role}</Text>
+                <Text style={[styles.thinText, role == 'user' ? (styles.userColor) : (styles.adminColor)]}>{role}</Text>
             </View>
             <View style={styles.postBody}>
                 {
@@ -24,7 +24,7 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                             <TextInput
                                 value={text}
                                 onChangeText={setText}
-                                style={styles.greyText}
+                                style={[styles.greyText, styles.textInput]}
                             />
                         ) : (
                             <Text style={styles.greyText}>{content}</Text>
@@ -44,12 +44,12 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                     !isEditing ? (
                         <View style={styles.postFooter}>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#00ff00', borderless: false, foreground: true }}>
                                     <Ionicons name="create" size={24} color="green" />
                                 </Pressable>
                             </View>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}} android_ripple={{ color: '#ff0000', borderless: false, foreground: true }}>
                                     <Ionicons name="trash" size={24} color="red" />
                                 </Pressable>
                             </View>
@@ -62,7 +62,7 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                                 </Pressable>
                             </View>
                             <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}} android_ripple={{ color: '#00ff00', borderless: false, foreground: true }}>
                                     <Ionicons name="save" size={24} color="green" />
                                 </Pressable>
                             </View>
@@ -107,6 +107,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
 
     },
+    textInput: {
+        backgroundColor: '#5b5b5b',
+        borderRadius: 5,
+    },
     buttonContainer: {
         width: 45,
         margin: 5,
@@ -138,4 +142,10 @@ const styles = StyleSheet.create({
     greyText: {
         color: '#c8c8c8',
     },
+    adminColor: {
+        color: '#ff00e6',
+    },
+    userColor: {
+        color: '#b6ff49',
+    }
 });

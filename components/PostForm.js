@@ -19,7 +19,7 @@ export default function PostForm({publish}) {
                 ></TextInput>
             </View>
             <View>
-                <Pressable style={styles.buttonStyle} onPress={() => {publish(content); setContent('');}} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
+                <Pressable style={styles.buttonStyle} onPress={() => {publish(content); setContent('');}} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                     <Text style={styles.buttonText}>POST </Text>
                     <Ionicons name="send" size={24} color="#565656" />
                 </Pressable>
