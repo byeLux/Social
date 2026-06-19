@@ -6,10 +6,11 @@ import Error from '../components/Error';
 import PostForm from '../components/PostForm';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
+import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
 
 export default function Home({token, onLogout}) {
 
-    const API_BASE = 'http://10.10.54.67/socialApi';
+    const API_BASE = 'http://10.10.55.13:8888/socialApi';
 
     const [lastId, setId] = useState();
 
@@ -63,134 +64,99 @@ export default function Home({token, onLogout}) {
         }
     }
 
-    function loadPosts(token, pages) {
+    async function loadPosts(pages) {
         console.log('loading posts...');
         try {
-            axios.get(`${API_BASE}/Api/controller/PostController.php?page=${pages}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            })
-            .then((response) => {
-                //console.log(JSON.stringify(response.data, null, 2));
-                setError(false);
-                setErrorMessage('');
-                setPosts(response.data.posts);
-                setTotalPages(response.data.pagination.total_pages);
-                getUser(token);
-                console.log('Posts loaded!');
-            })
-            .catch((error) => {
-                console.error(error);
-                setError(true);
-                setErrorMessage('An error occurred while fetching posts.');
-            });
+            const result = await getPosts(token);
+            setError(false);
+            setErrorMessage('');
+            setPosts(result);
+            getUser(token);
+            return;
         } catch (error) {
-            console.error(error);
+            console.error('Full error:', error);
+            console.error('Full error:', error);
+            console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
+            console.error('Method:', error.config?.method);
+
+            if (error.response) {
+                setErrorMessage('Posts failed to load.\nPlease check your connection.');
+            } else if (error.request) {
+                setErrorMessage('Network error.\nServer might be unreachable.');
+            } else {
+                setErrorMessage('An error occurred while loading the posts.\nPlease try again later.');
+            }
             setError(true);
-            setErrorMessage('Api error.');
+            return;
         }
     }
 
-    function handleEdit(id, editedContent) {
+    async function handleEdit(id, editedContent) {
         try {
-            axios.post(`${API_BASE}/Api/endpoint/editPost.php`,
-                {
-                    post_id: id,
-                    content: editedContent,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                }
-            )
-            .then((response) => {
-                //console.log(JSON.stringify(response.data, null, 2));
-                setError(false);
-                setErrorMessage('');
-                setPosts(response.data.posts);
-                loadPosts(token);
-            })
-            .catch((error) => {
-                console.error(error);
-                setError(true);
-                setErrorMessage('An error occurred while editing the post.');
-            });
+            const result = await updatePost(id, editedContent, token);
+            setError(false);
+            setErrorMessage('');
+            setPosts(result);
+            return;
         } catch (error) {
-            console.error(error);
+            console.error('Full error:', error);
+
+            if (error.response) {
+                setErrorMessage('Post failed to update.\nPlease check your connection.');
+            } else if (error.request) {
+                setErrorMessage('Network error.\nServer might be unreachable.');
+            } else {
+                setErrorMessage('An error occurred while updating the post.\nPlease try again later.');
+            }
             setError(true);
-            setErrorMessage('Api error.');
+            return;
         }
     }
 
-    function handleDelete(id) {
+    async function handleDelete(id) {
         try {
-            axios.post(`${API_BASE}/Api/endpoint/deletePost.php`,
-                {
-                    post_id: id
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                }
-            )
-            .then((response) => {
-                //console.log(JSON.stringify(response.data, null, 2));
-                setError(false);
-                setErrorMessage('');
-                setPosts(response.data.posts);
-                loadPosts(token);
-            })
-            .catch((error) => {
-                console.error(error);
-                setError(true);
-                setErrorMessage('An error occurred while deleting the post.');
-            });
+            const result = await deletePost(id, token);
+            setError(false);
+            setErrorMessage('');
+            setPosts(result);
+            return;
         } catch (error) {
-            console.error(error);
+            console.error('Full error:', error);
+
+            if (error.response) {
+                setErrorMessage('Post failed to delete.\nPlease check your connection.');
+            } else if (error.request) {
+                setErrorMessage('Network error.\nServer might be unreachable.');
+            } else {
+                setErrorMessage('An error occurred while deleting the post.\nPlease try again later.');
+            }
             setError(true);
-            setErrorMessage('Api error.');
+            return;
         }
     }
 
-    function handlePublish(text) {
+    async function handlePublish(text) {
         try {
-            axios.post(`${API_BASE}/Api/endpoint/createPost.php`,
-                {
-                    user_id: user.user_id,
-                    content: text
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                }
-            )
-            .then((response) => {
-                //console.log(JSON.stringify(response.data, null, 2));
-                setError(false);
-                setErrorMessage('');
-                setPosts(response.data.posts);
-                loadPosts(token);
-            })
-            .catch((error) => {
-                console.error(error);
-                setError(true);
-                setErrorMessage('An error occurred while creating the post.');
-            });
+            const result = await createPost(text, token);
+            setError(false);
+            setErrorMessage('');
+            setPosts(result);
+            return;
         } catch (error) {
-            console.error(error);
+            console.error('Full error:', error);
+            console.error('Full error:', error);
+            console.error('Full error:', error);
+            console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
+            console.error('Method:', error.config?.method);
+            if (error.response) {
+                setErrorMessage('Post creation failed.\nPlease check your connection.');
+            } else if (error.request) {
+                setErrorMessage('Network error.\nServer might be unreachable.');
+            } else {
+                setErrorMessage('An error occurred while creating the post.\nPlease try again later.');
+            }
             setError(true);
-            setErrorMessage('Api error.');
+            return;
         }
     }
 

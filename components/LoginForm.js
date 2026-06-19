@@ -2,6 +2,8 @@ import { useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Error from './Error';
+import { login } from '../src/api/authService';
+
 
 export default function LoginForm({ onLoginSuccess }) {
     // 1. Tieni tu i valori in uno state
@@ -9,32 +11,26 @@ export default function LoginForm({ onLoginSuccess }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    
-
-    const API_BASE = 'http://10.10.54.67/socialApi';
 
     async function handleSubmit() {
         console.log('submitting...');
         try {
-            const res = await fetch(`${API_BASE}/Api/endpoint/login.php`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ username, password })
-            });
-            const result = await res.json();
-            if(!res.ok) {
-                //console.error('Login failed:', result.error);
-                setErrorMessage('Login failed.\nPlease check your credentials.');
-                setError(true);
-                return;
-            }
+            const result = await login(username, password);
             setError(false);
             setErrorMessage('');
             return result;
         } catch (error) {
-            //console.error(error);
-            setErrorMessage('An error occurred while trying to log in.\nPlease try again later.');
+            console.error('Full error:', error);
+
+            if (error.response) {
+                setErrorMessage('Login failed.\nPlease check your credentials.');
+            } else if (error.request) {
+                setErrorMessage('Network error.\nServer might be unreachable.');
+            } else {
+                setErrorMessage('An error occurred while trying to log in.\nPlease try again later.');
+            }
             setError(true);
+            return;
         }
     }
 
@@ -68,9 +64,9 @@ export default function LoginForm({ onLoginSuccess }) {
                 </View>
                 <View id='form-button-container'>
                     <Pressable onPress={async () => {
-                        const ok = await handleSubmit(username, password);
+                        const ok = await handleSubmit();
                         console.log(ok);
-                        if (ok.token) onLoginSuccess(ok.token); // ✅ cambia schermata
+                        if (ok.token) {onLoginSuccess(ok.token); console.log("Redirecting...");} // ✅ cambia schermata
                     }} style={styles.buttonStyle} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                         <Text style={styles.buttonText}>LOGIN</Text>
                     </Pressable>
