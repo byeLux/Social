@@ -89,8 +89,12 @@ export default function Home({token, onLogout}) {;
     }
 
     async function handleEdit(id, editedContent) {
-        const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
-        if (result) loadPosts(lastVisitedPage, token);
+        if(editedContent.trim().length > 0) {
+            const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
+            if (result) loadPosts(lastVisitedPage, token);
+        }
+        setError(true);
+        setErrorMessage("Il post non può essere vuoto!");
     }
 
     async function handleDelete(id) {
@@ -105,7 +109,6 @@ export default function Home({token, onLogout}) {;
                 loadPosts(1, token);
                 setLastVisitedPage(1);
             }
-            return;
         }
         setError(true);
         setErrorMessage("Il post non può essere vuoto!");
