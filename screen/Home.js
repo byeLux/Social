@@ -9,9 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
 import { getUser } from '../src/api/userService';
 
-export default function Home({token, onLogout}) {
-
-    const API_BASE = 'http://10.10.55.13:8888/socialApi';
+export default function Home({token, onLogout}) {;
 
     const [lastId, setId] = useState();
 
@@ -37,29 +35,12 @@ export default function Home({token, onLogout}) {
             : '';
     };
 
-    async function loadUser(token) {
-        console.log('getting user...')
-        try {
-            const userData = await getUser(token);
-            setError(false);
-            setErrorMessage('');
-            setUser(userData);
-            setUserName(capitalize(userData.username));
-            setUserRole(userData.role);
-            return;
-        } catch (error) {
-            console.error(error);
-            setError(true);
-            setErrorMessage('Api error.');
-        }
-    }
-
-    // Mappa dei messaggi di errore per operazione
     const ERROR_MESSAGES = {
         load:   { response: 'Posts failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the posts.\nPlease try again later.' },
         update: { response: 'Post failed to update.\nPlease check your connection.',   unknown: 'An error occurred while updating the post.\nPlease try again later.' },
         delete: { response: 'Post failed to delete.\nPlease check your connection.',   unknown: 'An error occurred while deleting the post.\nPlease try again later.' },
         create: { response: 'Post creation failed.\nPlease check your connection.',    unknown: 'An error occurred while creating the post.\nPlease try again later.' },
+        user:   { response: 'User failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the user.\nPlease try again later.' },
     };
 
     const NETWORK_ERROR_MESSAGE = 'Network error.\nServer might be unreachable.';
@@ -86,6 +67,14 @@ export default function Home({token, onLogout}) {
         }
     }
 
+    async function loadUser(token) {
+        const result = await withErrorHandling(() => getUser(token), 'user');
+        if (!result) return;
+        setUser(result);
+        setUserName(capitalize(result.username));
+        setUserRole(result.role);
+    }
+
     async function loadPosts(pages) {
         const result = await withErrorHandling(() => getPosts(pages, token), 'load');
         if (!result) return;
@@ -110,11 +99,16 @@ export default function Home({token, onLogout}) {
     }
 
     async function handlePublish(text) {
-        const result = await withErrorHandling(() => createPost(text, token), 'create');
-        if (result) {
-            loadPosts(1, token);
-            setLastVisitedPage(1);
+        if(text.trim().length > 0) {
+            const result = await withErrorHandling(() => createPost(text, token), 'create');
+            if (result) {
+                loadPosts(1, token);
+                setLastVisitedPage(1);
+            }
+            return;
         }
+        setError(true);
+        setErrorMessage("Il post non può essere vuoto!");
     }
 
     function handleLogout() {
@@ -139,33 +133,32 @@ export default function Home({token, onLogout}) {
                     </Pressable>
                 </View>
             </View>
-
-            <View>
-                <PostForm publish={handlePublish}/>
-            </View>
-
-            {!error ? (
-              <FlatList
+            {error ? (
+                    <View>
+                        <PostForm publish={handlePublish}/>
+                        <Error error={errorMessage} />
+                    </View>
+                ) : (
+                     <View>
+                        <PostForm publish={handlePublish}/>
+                    </View>
+                )
+            }
+            <FlatList
                 data={posts}
                 renderItem={({ item }) => <Post {...item} isAdmin={userRole === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
-            />  
-            ) : (<Error error={errorMessage} />)}
-
+            />
             <View style={styles.pagination}>
                 {
                     [...Array(totalPages)].map((_, i) => (
-                        <Pressable key={i + 1} onPress={() => {{loadPosts(i + 1, token); setLastVisitedPage(i + 1)}}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
+                        <Pressable key={i + 1} onPress={() => {loadPosts(i + 1, token); setLastVisitedPage(i + 1)}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                             <Text style={styles.buttonText}>{i + 1}</Text>
                         </Pressable>
                     ))
                 }
             </View>
-
-            {/* <Pressable onPress={() => {loadPosts(token); getUser(token);}} style={styles.buttonStyle}>
-                <Text>LOAD POSTS</Text>
-            </Pressable> */}
         </SafeAreaView>
     );
 }
