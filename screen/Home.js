@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Post from '../components/Post';
 import Error from '../components/Error';
 import PostForm from '../components/PostForm';
+import Pagination from '../components/Pagination';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
@@ -52,10 +53,10 @@ export default function Home({token, onLogout}) {;
     }
 
     async function withErrorHandling(operation, errorKey) {
+        setError(false);
+        setErrorMessage('');
         try {
             const result = await operation();
-            setError(false);
-            setErrorMessage('');
             return result;
         } catch (error) {
             logError(error);
@@ -88,30 +89,32 @@ export default function Home({token, onLogout}) {;
         if(result) setLastVisitedPage(page);
     }
 
-    async function handleEdit(id, editedContent) {
-        if(editedContent.trim().length > 0) {
-            const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
-            if (result) loadPosts(lastVisitedPage, token);
-        }
-        setError(true);
-        setErrorMessage("Il post non può essere vuoto!");
-    }
-
-    async function handleDelete(id) {
-        const result = await withErrorHandling(() => deletePost(id, token), 'delete');
-        if (result) loadPosts(lastVisitedPage, token);
-    }
-
     async function handlePublish(text) {
-        if(text.trim().length > 0) {
+        if (text.trim().length > 0) {
             const result = await withErrorHandling(() => createPost(text, token), 'create');
             if (result) {
                 loadPosts(1, token);
                 setLastVisitedPage(1);
             }
+        } else {
+            setError(true);
+            setErrorMessage("Il post non può essere vuoto!");
         }
-        setError(true);
-        setErrorMessage("Il post non può essere vuoto!");
+    }
+
+    async function handleEdit(id, editedContent) {
+        if (editedContent.trim().length > 0) {
+            const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
+            if (result) loadPosts(lastVisitedPage, token);
+        } else {
+            setError(true);
+            setErrorMessage("Il post non può essere vuoto!");
+        }
+    }
+
+    async function handleDelete(id) {
+        const result = await withErrorHandling(() => deletePost(id, token), 'delete');
+        if (result) loadPosts(lastVisitedPage, token);
     }
 
     function handleLogout() {
@@ -153,15 +156,12 @@ export default function Home({token, onLogout}) {;
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
             />
-            <View style={styles.pagination}>
-                {
-                    [...Array(totalPages)].map((_, i) => (
-                        <Pressable key={i + 1} onPress={() => {loadPosts(i + 1, token); setLastVisitedPage(i + 1)}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
-                            <Text style={styles.buttonText}>{i + 1}</Text>
-                        </Pressable>
-                    ))
-                }
-            </View>
+            <Pagination 
+                totalPages={totalPages} 
+                setLastVisitedPage={setLastVisitedPage} 
+                loadPosts={loadPosts} 
+                token={token}
+            /> 
         </SafeAreaView>
     );
 }
@@ -195,7 +195,8 @@ const styles = StyleSheet.create({
     },
     yellowText: {
         color: '#FFD99F',
-        fontWeight: 'bold', 
+        fontWeight: 'bold',
+        fontSize: 17, 
     },
     logOutButton: {
         backgroundColor: '#FFD99F',

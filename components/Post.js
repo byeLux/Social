@@ -122,7 +122,8 @@ const styles = StyleSheet.create({
     },
     yellowText: {
         color: '#FFD99F',
-        fontWeight: 'bold', 
+        fontWeight: 'bold',
+        fontSize: 17, 
     },
     button: {
         marginLeft: 10,
@@ -142,6 +143,8 @@ const styles = StyleSheet.create({
     },
     greyText: {
         color: '#c8c8c8',
+        fontWeight: '700',
+        fontSize: 16,
     },
     adminColor: {
         color: '#ff00e6',
