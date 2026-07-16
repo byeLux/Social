@@ -7,10 +7,9 @@ import PostForm from '../components/PostForm';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
+import { getUser } from '../src/api/userService';
 
-export default function Home({token, onLogout}) {
-
-    const API_BASE = 'http://10.10.55.13:8888/socialApi';
+export default function Home({token, onLogout}) {;
 
     const [lastId, setId] = useState();
 
@@ -28,136 +27,91 @@ export default function Home({token, onLogout}) {
 
     const [totalPages, setTotalPages] = useState(1);
 
+    const [lastVisitedPage, setLastVisitedPage] = useState(1);
+
     const capitalize = (str = '') => {
         return str.length
             ? str.charAt(0).toUpperCase() + str.slice(1)
             : '';
     };
 
-    function getUser(token) {
-        console.log('getting user...')
+    const ERROR_MESSAGES = {
+        load:   { response: 'Posts failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the posts.\nPlease try again later.' },
+        update: { response: 'Post failed to update.\nPlease check your connection.',   unknown: 'An error occurred while updating the post.\nPlease try again later.' },
+        delete: { response: 'Post failed to delete.\nPlease check your connection.',   unknown: 'An error occurred while deleting the post.\nPlease try again later.' },
+        create: { response: 'Post creation failed.\nPlease check your connection.',    unknown: 'An error occurred while creating the post.\nPlease try again later.' },
+        user:   { response: 'User failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the user.\nPlease try again later.' },
+    };
+
+    const NETWORK_ERROR_MESSAGE = 'Network error.\nServer might be unreachable.';
+
+    function logError(error) {
+        console.error('Full error:', error);
+        console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
+        console.error('Method:', error.config?.method);
+    }
+
+    async function withErrorHandling(operation, errorKey) {
         try {
-            axios.get(`${API_BASE}/Api/endpoint/getUser.php`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                })
-                .then((response) => {
-                    //console.log(JSON.stringify(response.data.user, null, 2));
-                    setError(false);
-                    setErrorMessage('');
-                    setUser(response.data.user);
-                    setUserName(capitalize(response.data.user.username));
-                    setUserRole(response.data.user.role);
-                    console.log('User loaded!');
-                })
-                .catch((error) => {
-                    console.error(error);
-                    setError(true);
-                    setErrorMessage('An error occurred while fetching user data.');
-                });
+            const result = await operation();
+            setError(false);
+            setErrorMessage('');
+            return result;
         } catch (error) {
-            console.error(error);
+            logError(error);
+            const messages = ERROR_MESSAGES[errorKey];
+            if (error.response)     setErrorMessage(messages.response);
+            else if (error.request) setErrorMessage(NETWORK_ERROR_MESSAGE);
+            else                    setErrorMessage(messages.unknown);
             setError(true);
-            setErrorMessage('Api error.');
         }
+    }
+
+    async function loadUser(token) {
+        const result = await withErrorHandling(() => getUser(token), 'user');
+        if (!result) return;
+        setUser(result);
+        setUserName(capitalize(result.username));
+        setUserRole(result.role);
     }
 
     async function loadPosts(pages) {
-        console.log('loading posts...');
-        try {
-            const result = await getPosts(token);
-            setError(false);
-            setErrorMessage('');
-            setPosts(result);
-            getUser(token);
-            return;
-        } catch (error) {
-            console.error('Full error:', error);
-            console.error('Full error:', error);
-            console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-            console.error('Method:', error.config?.method);
+        const result = await withErrorHandling(() => getPosts(pages, token), 'load');
+        if (!result) return;
+        setPosts(result.posts);
+        setTotalPages(result.pagination.total_pages);
+        loadUser(token);
+    }
 
-            if (error.response) {
-                setErrorMessage('Posts failed to load.\nPlease check your connection.');
-            } else if (error.request) {
-                setErrorMessage('Network error.\nServer might be unreachable.');
-            } else {
-                setErrorMessage('An error occurred while loading the posts.\nPlease try again later.');
-            }
-            setError(true);
-            return;
-        }
+    async function goToPage(page) {
+        const result = await withErrorHandling(() => loadPosts(page, token), "load");
+        if(result) setLastVisitedPage(page);
     }
 
     async function handleEdit(id, editedContent) {
-        try {
-            const result = await updatePost(id, editedContent, token);
-            setError(false);
-            setErrorMessage('');
-            setPosts(result);
-            return;
-        } catch (error) {
-            console.error('Full error:', error);
-
-            if (error.response) {
-                setErrorMessage('Post failed to update.\nPlease check your connection.');
-            } else if (error.request) {
-                setErrorMessage('Network error.\nServer might be unreachable.');
-            } else {
-                setErrorMessage('An error occurred while updating the post.\nPlease try again later.');
-            }
-            setError(true);
-            return;
+        if(editedContent.trim().length > 0) {
+            const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
+            if (result) loadPosts(lastVisitedPage, token);
         }
+        setError(true);
+        setErrorMessage("Il post non può essere vuoto!");
     }
 
     async function handleDelete(id) {
-        try {
-            const result = await deletePost(id, token);
-            setError(false);
-            setErrorMessage('');
-            setPosts(result);
-            return;
-        } catch (error) {
-            console.error('Full error:', error);
-
-            if (error.response) {
-                setErrorMessage('Post failed to delete.\nPlease check your connection.');
-            } else if (error.request) {
-                setErrorMessage('Network error.\nServer might be unreachable.');
-            } else {
-                setErrorMessage('An error occurred while deleting the post.\nPlease try again later.');
-            }
-            setError(true);
-            return;
-        }
+        const result = await withErrorHandling(() => deletePost(id, token), 'delete');
+        if (result) loadPosts(lastVisitedPage, token);
     }
 
     async function handlePublish(text) {
-        try {
-            const result = await createPost(text, token);
-            setError(false);
-            setErrorMessage('');
-            setPosts(result);
-            return;
-        } catch (error) {
-            console.error('Full error:', error);
-            console.error('Full error:', error);
-            console.error('Full error:', error);
-            console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-            console.error('Method:', error.config?.method);
-            if (error.response) {
-                setErrorMessage('Post creation failed.\nPlease check your connection.');
-            } else if (error.request) {
-                setErrorMessage('Network error.\nServer might be unreachable.');
-            } else {
-                setErrorMessage('An error occurred while creating the post.\nPlease try again later.');
+        if(text.trim().length > 0) {
+            const result = await withErrorHandling(() => createPost(text, token), 'create');
+            if (result) {
+                loadPosts(1, token);
+                setLastVisitedPage(1);
             }
-            setError(true);
-            return;
         }
+        setError(true);
+        setErrorMessage("Il post non può essere vuoto!");
     }
 
     function handleLogout() {
@@ -182,33 +136,32 @@ export default function Home({token, onLogout}) {
                     </Pressable>
                 </View>
             </View>
-
-            <View>
-                <PostForm publish={handlePublish}/>
-            </View>
-
-            {!error ? (
-              <FlatList
+            {error ? (
+                    <View>
+                        <PostForm publish={handlePublish}/>
+                        <Error error={errorMessage} />
+                    </View>
+                ) : (
+                     <View>
+                        <PostForm publish={handlePublish}/>
+                    </View>
+                )
+            }
+            <FlatList
                 data={posts}
                 renderItem={({ item }) => <Post {...item} isAdmin={userRole === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
-            />  
-            ) : (<Error error={errorMessage} />)}
-
+            />
             <View style={styles.pagination}>
                 {
                     [...Array(totalPages)].map((_, i) => (
-                        <Pressable key={i + 1} onPress={() => {loadPosts(token, i + 1)}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
+                        <Pressable key={i + 1} onPress={() => {loadPosts(i + 1, token); setLastVisitedPage(i + 1)}} style={styles.pageButton} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                             <Text style={styles.buttonText}>{i + 1}</Text>
                         </Pressable>
                     ))
                 }
             </View>
-
-            {/* <Pressable onPress={() => {loadPosts(token); getUser(token);}} style={styles.buttonStyle}>
-                <Text>LOAD POSTS</Text>
-            </Pressable> */}
         </SafeAreaView>
     );
 }
