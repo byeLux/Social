@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {View, Pressable, Text, StyleSheet, Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getUser } from '../src/api/userService';
+import { capitalize } from '../src/utils/stringUtils';
 
 export default function HomeHeader({withErrorHandling, onLogout, token}) {
 
@@ -9,16 +10,9 @@ export default function HomeHeader({withErrorHandling, onLogout, token}) {
     const [userName, setUserName] = useState();
     const [userRole, setUserRole] = useState('');
 
-    const capitalize = (str = '') => {
-        return str.length
-            ? str.charAt(0).toUpperCase() + str.slice(1)
-            : '';
-    };
-
     async function loadUser(token) {
         const result = await withErrorHandling(() => getUser(token), 'user');
         if (!result) return;
-        console.log('result di getuser: ' + result.username);
         setUser(result);
         setUserName(capitalize(result.username));
         setUserRole(result.role);
