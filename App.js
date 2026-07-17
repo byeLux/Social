@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import * as NavigationBar from 'expo-navigation-bar';
-import LoginForm from './components/LoginForm';
-import Home from './screen/Home';
+import LoginForm from './src/components/LoginForm';
+import Home from './src/screens/Home';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

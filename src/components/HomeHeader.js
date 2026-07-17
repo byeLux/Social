@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import {View, Pressable, Text, StyleSheet, Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getUser } from '../src/api/userService';
-import { capitalize } from '../src/utils/stringUtils';
+import { getUser } from '../api/userService';
+import { capitalize } from '../utils/stringUtils';
 
 export default function HomeHeader({withErrorHandling, onLogout, token}) {
 
@@ -30,7 +30,7 @@ export default function HomeHeader({withErrorHandling, onLogout, token}) {
         <View style={styles.header}>
             <View style={styles.left}>
                 <Image
-                    source={require('../assets/avatar.webp')}
+                    source={require('../../assets/avatar.webp')}
                     style={{ width: 50, height: 50 }}/>
                 <Text style={styles.yellowText}>{userName}</Text>
             </View>

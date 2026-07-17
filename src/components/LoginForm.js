@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Error from './Error';
-import { login } from '../src/api/authService';
+import { login } from '../api/authService';
 
 
 export default function LoginForm({ onLoginSuccess }) {

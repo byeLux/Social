@@ -8,9 +8,9 @@ import PostForm from '../components/PostForm';
 import Pagination from '../components/Pagination';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
-import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
-import { getUser } from '../src/api/userService';
-import { useErrorHandling } from '../src/hooks/useErrorHandling.js';
+import { getPosts, createPost, updatePost, deletePost } from '../api/postService';
+import { getUser } from '../api/userService';
+import { useErrorHandling } from '../hooks/useErrorHandling.js';
 
 export default function Home({token, onLogout}) {;
 
