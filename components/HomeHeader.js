@@ -1,0 +1,90 @@
+import { useState, useEffect } from 'react';
+import {View, Pressable, Text, StyleSheet, Image} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { getUser } from '../src/api/userService';
+
+export default function HomeHeader({withErrorHandling, onLogout, token}) {
+
+    const [user, setUser] = useState();
+    const [userName, setUserName] = useState();
+    const [userRole, setUserRole] = useState('');
+
+    const capitalize = (str = '') => {
+        return str.length
+            ? str.charAt(0).toUpperCase() + str.slice(1)
+            : '';
+    };
+
+    async function loadUser(token) {
+        const result = await withErrorHandling(() => getUser(token), 'user');
+        if (!result) return;
+        console.log('result di getuser: ' + result.username);
+        setUser(result);
+        setUserName(capitalize(result.username));
+        setUserRole(result.role);
+    }
+
+    useEffect(() => {
+        if (token) loadUser(token);
+    }, [token]);
+
+    function handleLogout() {
+        onLogout(true);
+    }
+
+    return (
+        <View style={styles.header}>
+            <View style={styles.left}>
+                <Image
+                    source={require('../assets/avatar.webp')}
+                    style={{ width: 50, height: 50 }}/>
+                <Text style={styles.yellowText}>{userName}</Text>
+            </View>
+            <View style={styles.center}>
+                <Text style={[styles.yellowText, styles.sizeText]}>HOME</Text>
+            </View>
+            <View style={styles.right}>
+                <Pressable style={styles.logOutButton} onPress={handleLogout} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
+                    <Ionicons name="log-out" size={24} color="#202020" />
+                </Pressable>
+            </View>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 6,
+    },
+    left: {
+        flex: 1,
+        alignItems: 'flex-start',
+    },
+    center: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    right: {
+        flex: 1,
+        alignItems: 'flex-end',
+    },
+    yellowText: {
+        color: '#FFD99F',
+        fontWeight: 'bold',
+        fontSize: 17, 
+    },
+    logOutButton: {
+        backgroundColor: '#FFD99F',
+        borderRadius: 5,
+        height: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 45,
+    },
+    sizeText: {
+        fontWeight: 'bold',
+        fontSize: 30,
+    },
+});

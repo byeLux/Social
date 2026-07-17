@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import {View, TextInput, Pressable, Text, StyleSheet, Button, ScrollView, FlatList, Image} from 'react-native';
+import {View, StyleSheet, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import HomeHeader from '../components/HomeHeader';
 import Post from '../components/Post';
 import Error from '../components/Error';
 import PostForm from '../components/PostForm';
@@ -20,21 +21,9 @@ export default function Home({token, onLogout}) {;
 
     const [posts, setPosts] = useState([]);
 
-    const [user, setUser] = useState();
-
-    const [userName, setUserName] = useState('loading...');
-
-    const [userRole, setUserRole] = useState('');
-
     const [totalPages, setTotalPages] = useState(1);
 
     const [lastVisitedPage, setLastVisitedPage] = useState(1);
-
-    const capitalize = (str = '') => {
-        return str.length
-            ? str.charAt(0).toUpperCase() + str.slice(1)
-            : '';
-    };
 
     const ERROR_MESSAGES = {
         load:   { response: 'Posts failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the posts.\nPlease try again later.' },
@@ -61,19 +50,20 @@ export default function Home({token, onLogout}) {;
         } catch (error) {
             logError(error);
             const messages = ERROR_MESSAGES[errorKey];
-            if (error.response)     setErrorMessage(messages.response);
-            else if (error.request) setErrorMessage(NETWORK_ERROR_MESSAGE);
-            else                    setErrorMessage(messages.unknown);
+            if (error.response)      setErrorMessage(messages.response);
+            else if (error.request)  setErrorMessage(NETWORK_ERROR_MESSAGE);
+            else                     setErrorMessage(messages.unknown);
             setError(true);
+            return null; // esplicito: valore di fallback coerente con i controlli "if (!result)"
         }
     }
 
-    async function loadUser(token) {
-        const result = await withErrorHandling(() => getUser(token), 'user');
-        if (!result) return;
-        setUser(result);
-        setUserName(capitalize(result.username));
-        setUserRole(result.role);
+    // Helper per evitare di duplicare la validazione "post vuoto"
+    function validateNotEmpty(text) {
+        if (text.trim().length > 0) return true;
+        setError(true);
+        setErrorMessage("Il post non può essere vuoto!");
+        return false;
     }
 
     async function loadPosts(pages) {
@@ -81,64 +71,41 @@ export default function Home({token, onLogout}) {;
         if (!result) return;
         setPosts(result.posts);
         setTotalPages(result.pagination.total_pages);
-        loadUser(token);
-    }
-
-    async function goToPage(page) {
-        const result = await withErrorHandling(() => loadPosts(page, token), "load");
-        if(result) setLastVisitedPage(page);
     }
 
     async function handlePublish(text) {
-        if (text.trim().length > 0) {
-            const result = await withErrorHandling(() => createPost(text, token), 'create');
-            if (result) {
-                loadPosts(1, token);
-                setLastVisitedPage(1);
-            }
-        } else {
-            setError(true);
-            setErrorMessage("Il post non può essere vuoto!");
-        }
+        if (!validateNotEmpty(text)) return;
+
+        const result = await withErrorHandling(() => createPost(text, token), 'create');
+        if (!result) return;
+
+        await loadPosts(1);
+        setLastVisitedPage(1);
     }
 
     async function handleEdit(id, editedContent) {
-        if (editedContent.trim().length > 0) {
-            const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
-            if (result) loadPosts(lastVisitedPage, token);
-        } else {
-            setError(true);
-            setErrorMessage("Il post non può essere vuoto!");
-        }
+        if (!validateNotEmpty(editedContent)) return;
+
+        const result = await withErrorHandling(() => updatePost(id, editedContent, token), 'update');
+        if (!result) return;
+
+        await loadPosts(lastVisitedPage);
     }
 
     async function handleDelete(id) {
         const result = await withErrorHandling(() => deletePost(id, token), 'delete');
-        if (result) loadPosts(lastVisitedPage, token);
-    }
+        if (!result) return;
 
-    function handleLogout() {
-        onLogout(true);
+        await loadPosts(lastVisitedPage);
     }
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.header}>
-                <View style={styles.left}>
-                    <Image
-                        source={require('../assets/avatar.webp')}
-                        style={{ width: 50, height: 50 }}/>
-                    <Text style={styles.yellowText}>{userName}</Text>
-                </View>
-                <View style={styles.center}>
-                    <Text style={[styles.yellowText, styles.sizeText]}>HOME</Text>
-                </View>
-                <View style={styles.right}>
-                    <Pressable style={styles.logOutButton} onPress={handleLogout} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
-                        <Ionicons name="log-out" size={24} color="#202020" />
-                    </Pressable>
-                </View>
-            </View>
+            <HomeHeader 
+                withErrorHandling={withErrorHandling}
+                onLogout={onLogout}
+                token={token}
+            />
             {error ? (
                     <View>
                         <PostForm publish={handlePublish}/>
@@ -152,7 +119,7 @@ export default function Home({token, onLogout}) {;
             }
             <FlatList
                 data={posts}
-                renderItem={({ item }) => <Post {...item} isAdmin={userRole === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
+                renderItem={({ item }) => <Post {...item} isAdmin={item.role === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
             />
@@ -161,6 +128,7 @@ export default function Home({token, onLogout}) {;
                 setLastVisitedPage={setLastVisitedPage} 
                 loadPosts={loadPosts} 
                 token={token}
+                currentPage={lastVisitedPage}
             /> 
         </SafeAreaView>
     );
@@ -171,80 +139,4 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#202020',
     },
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        margin: 6,
-    },
-    left: {
-        flex: 1,
-        alignItems: 'flex-start',
-    },
-    center: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    right: {
-        flex: 1,
-        alignItems: 'flex-end',
-    },
-    yellowText: {
-        color: '#FFD99F',
-        fontWeight: 'bold',
-        fontSize: 17, 
-    },
-    logOutButton: {
-        backgroundColor: '#FFD99F',
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 45,
-    },
-    buttonStyle: {
-        backgroundColor: '#FFD99F',
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#565656',
-        fontWeight: 'bold',
-        padding: 5,
-    },
-    footer: {
-        flex: 3,
-    },
-    whiteText: {
-        color: 'white',
-    },
-    sizeText: {
-        fontWeight: 'bold',
-        fontSize: 30,
-    },
-    textInput: {
-        textAlign: 'center',
-        backgroundColor: '#cfcfcf',
-        borderRadius: 5,
-    },
-    pagination: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    pageButton: {
-        backgroundColor: '#FFD99F',
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 45,
-    }
 });
