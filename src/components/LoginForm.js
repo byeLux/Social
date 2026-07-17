@@ -115,9 +115,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    whiteText: {
-        color: 'white',
-    },
     textInput: {
         textAlign: 'center',
         backgroundColor: '#cfcfcf',

@@ -9,11 +9,14 @@ export default function Pagination({ totalPages, loadPosts, setLastVisitedPage, 
         setLastVisitedPage(clamped);
     }
 
+    const isFirstPage = currentPage <= 1;
+    const isLastPage = currentPage >= totalPages;
+
     return (
         <View style={styles.pagination}>
             <Pressable
-                style={styles.doubleArrowsButton}
-                disabled={currentPage <= 1}
+                style={[styles.doubleArrowsButton, isFirstPage && styles.disabledButton]}
+                disabled={isFirstPage}
                 onPress={() => goToPage(1)}
             >
                 <Ionicons name="chevron-back-outline" size={24} color="#202020" style={{ marginLeft: 5 }}/>
@@ -21,7 +24,7 @@ export default function Pagination({ totalPages, loadPosts, setLastVisitedPage, 
             </Pressable>
             <Pressable
                 style={styles.pageButton}
-                disabled={currentPage <= 1}
+                disabled={isFirstPage}
                 onPress={() => goToPage(currentPage - 1)}
             >
                 <Ionicons name="chevron-back-outline" size={24} color="#202020" />
@@ -33,14 +36,14 @@ export default function Pagination({ totalPages, loadPosts, setLastVisitedPage, 
 
             <Pressable
                 style={styles.pageButton}
-                disabled={currentPage >= totalPages}
+                disabled={isLastPage}
                 onPress={() => goToPage(currentPage + 1)}
             >
                 <Ionicons name="chevron-forward-outline" size={24} color="#202020" />
             </Pressable>
             <Pressable
-                style={styles.doubleArrowsButton}
-                disabled={currentPage >= totalPages}
+                style={[styles.doubleArrowsButton, isLastPage && styles.disabledButton]}
+                disabled={isLastPage}
                 onPress={() => goToPage(totalPages)}
             >
                 <Ionicons name="chevron-forward-outline" size={24} color="#202020" style={{ marginLeft: 7 }}/>
@@ -74,9 +77,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#f9ead3',
         borderRadius: 5,
         height: 45,
-        justifyContent: 'center',
-        alignItems: 'center',
         width: 45,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     doubleArrowsButton: {
         backgroundColor: '#FFD99F',

@@ -44,25 +44,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         height: 100,
     },
-    postBody: {
-        flex: 2,
-    },
-    postFooter: {
-        flex: 1,
-        alignItems: 'flex-end',
-    },
-    buttonContainer: {
-        flex: 1,
-        flexDirection: 'row',
-    },
-    roleText: {
-        color: '#FFD99F',
-        fontWeight: 'thin', 
-    },
-    yellowText: {
-        color: '#FFD99F',
-        fontWeight: 'bold', 
-    },
     buttonStyle: {
         flex: 1,
         backgroundColor: '#FFD99F',
@@ -74,9 +55,6 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#565656',
         fontWeight: 'bold',
-    },
-    footer: {
-        flex: 3,
     },
     greyText: {
         color: '#d9d9d9',
