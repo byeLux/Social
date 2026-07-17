@@ -10,14 +10,11 @@ import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import { getPosts, createPost, updatePost, deletePost } from '../src/api/postService';
 import { getUser } from '../src/api/userService';
+import { useErrorHandling } from '../src/hooks/useErrorHandling.js';
 
 export default function Home({token, onLogout}) {;
 
     const [lastId, setId] = useState();
-
-    const [error, setError] = useState(false);
-
-    const [errorMessage, setErrorMessage] = useState('');
 
     const [posts, setPosts] = useState([]);
 
@@ -25,38 +22,7 @@ export default function Home({token, onLogout}) {;
 
     const [lastVisitedPage, setLastVisitedPage] = useState(1);
 
-    const ERROR_MESSAGES = {
-        load:   { response: 'Posts failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the posts.\nPlease try again later.' },
-        update: { response: 'Post failed to update.\nPlease check your connection.',   unknown: 'An error occurred while updating the post.\nPlease try again later.' },
-        delete: { response: 'Post failed to delete.\nPlease check your connection.',   unknown: 'An error occurred while deleting the post.\nPlease try again later.' },
-        create: { response: 'Post creation failed.\nPlease check your connection.',    unknown: 'An error occurred while creating the post.\nPlease try again later.' },
-        user:   { response: 'User failed to load.\nPlease check your connection.',    unknown: 'An error occurred while loading the user.\nPlease try again later.' },
-    };
-
-    const NETWORK_ERROR_MESSAGE = 'Network error.\nServer might be unreachable.';
-
-    function logError(error) {
-        console.error('Full error:', error);
-        console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-        console.error('Method:', error.config?.method);
-    }
-
-    async function withErrorHandling(operation, errorKey) {
-        setError(false);
-        setErrorMessage('');
-        try {
-            const result = await operation();
-            return result;
-        } catch (error) {
-            logError(error);
-            const messages = ERROR_MESSAGES[errorKey];
-            if (error.response)      setErrorMessage(messages.response);
-            else if (error.request)  setErrorMessage(NETWORK_ERROR_MESSAGE);
-            else                     setErrorMessage(messages.unknown);
-            setError(true);
-            return null; // esplicito: valore di fallback coerente con i controlli "if (!result)"
-        }
-    }
+    const { error, errorMessage, setError, setErrorMessage, withErrorHandling } = useErrorHandling();
 
     // Helper per evitare di duplicare la validazione "post vuoto"
     function validateNotEmpty(text) {
