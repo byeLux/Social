@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#202020'
     },
     title: {
-        flex: 4,
+        flex: 3,
         alignItems: 'center',
         justifyContent: 'center',
     },

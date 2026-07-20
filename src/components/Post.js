@@ -1,6 +1,7 @@
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import PostFooter from './PostFooter';
 
 export default function Post({id, username, role, isAdmin, content, creation_date, onDelete, onEdit}) {
 
@@ -40,37 +41,16 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                 </View>
             </View>
             
-            {
-                isAdmin && (
-                    !isEditing ? (
-                        <View style={styles.postFooter}>
-                            <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#00ff00', borderless: false, foreground: true }}>
-                                    <Ionicons name="create" size={24} color="green" />
-                                </Pressable>
-                            </View>
-                            <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onDelete(id)}} android_ripple={{ color: '#ff0000', borderless: false, foreground: true }}>
-                                    <Ionicons name="trash" size={24} color="red" />
-                                </Pressable>
-                            </View>
-                        </View>
-                    ) : (
-                        <View style={styles.postFooter}>
-                            <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => setIsEditing(!isEditing)} android_ripple={{ color: '#000000', borderless: false, foreground: true }}>
-                                    <Ionicons name="arrow-back" size={24} color="#202020" />
-                                </Pressable>
-                            </View>
-                            <View style={styles.buttonContainer}>
-                                <Pressable style={styles.buttonStyle} onPress={() => {onEdit(id, text); setIsEditing(!isEditing);}} android_ripple={{ color: '#00ff00', borderless: false, foreground: true }}>
-                                    <Ionicons name="save" size={24} color="green" />
-                                </Pressable>
-                            </View>
-                        </View>
-                    )
-                )
-            }
+            {isAdmin && (
+                <PostFooter
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                    id={id}
+                    text={text}
+                />
+            )}
         </View>
     );
 }
