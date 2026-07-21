@@ -77,6 +77,17 @@ export default function Home({token, onLogout}) {;
         await loadPosts(lastVisitedPage);
     }
 
+    useEffect(() => {
+        const fetchData = async () => {
+            await loadUser(token);
+            await loadPosts(1);
+        };
+
+        if (token) {
+            fetchData();
+        }
+    }, [token]);
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <HomeHeader 
