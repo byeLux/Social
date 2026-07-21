@@ -6,7 +6,7 @@ export default function ModerationButton({onPressFunctions, icon}) {
             <Pressable
                 style={styles.buttonStyle}
                 onPress={onPressFunctions}
-                android_ripple={{ color: '#00ff00', borderless: false, foreground: true }}
+                android_ripple={{ color: '#ff6f00', borderless: false, foreground: true }}
             >
                 {icon}
             </Pressable>
