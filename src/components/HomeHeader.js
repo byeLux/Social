@@ -2,25 +2,21 @@ import { useState, useEffect } from 'react';
 import {View, Pressable, Text, StyleSheet, Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getUser } from '../api/userService';
-import { capitalize } from '../utils/stringUtils';
 
-export default function HomeHeader({withErrorHandling, onLogout, token}) {
+export default function HomeHeader({withErrorHandling, onLogout, token, userName}) {
 
-    const [user, setUser] = useState();
-    const [userName, setUserName] = useState();
-    const [userRole, setUserRole] = useState('');
+    //const [user, setUser] = useState();
+    //const [userName, setUserName] = useState();
 
-    async function loadUser(token) {
-        const result = await withErrorHandling(() => getUser(token), 'user');
-        if (!result) return;
-        setUser(result);
-        setUserName(capitalize(result.username));
-        setUserRole(result.role);
-    }
-
-    useEffect(() => {
-        if (token) loadUser(token);
-    }, [token]);
+    // useEffect(() => {
+    //     if (token) {
+    //         const fetchUser = async () => {
+    //             const user = await getUser(token);
+    //             setUserName(capitalize(user.username));
+    //         };
+    //         fetchUser();
+    //     }
+    // }, [token]);
 
     function handleLogout() {
         onLogout(true);

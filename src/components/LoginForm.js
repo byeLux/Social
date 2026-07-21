@@ -13,7 +13,6 @@ export default function LoginForm({ onLoginSuccess }) {
     const [errorMessage, setErrorMessage] = useState('');
 
     async function handleSubmit() {
-        console.log('submitting...');
         try {
             const result = await login(username, password);
             setError(false);
@@ -65,8 +64,7 @@ export default function LoginForm({ onLoginSuccess }) {
                 <View id='form-button-container'>
                     <Pressable onPress={async () => {
                         const ok = await handleSubmit();
-                        console.log(ok);
-                        if (ok.token) {onLoginSuccess(ok.token); console.log("Redirecting...");} // ✅ cambia schermata
+                        if (ok.token) { onLoginSuccess(ok.token); } // ✅ cambia schermata
                     }} style={styles.buttonStyle} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
                         <Text style={styles.buttonText}>LOGIN</Text>
                     </Pressable>

@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import {View, TextInput, Pressable, Text, StyleSheet} from 'react-native';
 
-export default function Pagination({ totalPages, loadPosts, setLastVisitedPage, token, currentPage }) {
+export default function Pagination({ totalPages, loadPosts, loadUser, setLastVisitedPage, token, currentPage }) {
     function goToPage(page) {
         const clamped = Math.max(1, Math.min(page, totalPages));
         loadPosts(clamped, token);
+        loadUser(token);
         setLastVisitedPage(clamped);
     }
 

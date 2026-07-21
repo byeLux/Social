@@ -2,26 +2,23 @@ import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import PostFooter from './PostFooter';
+import { capitalize } from '../utils/stringUtils';
 
-export default function Post({id, username, role, isAdmin, content, creation_date, onDelete, onEdit}) {
+export default function Post({id, username, itsMe, role, canDelete, canEdit, content, creation_date, onDelete, onEdit}) {
 
     const [isEditing, setIsEditing] = useState(false);
     const [text, setText] = useState(content);
     const date = new Date(creation_date);
-    const capitalize = (str = '') => {
-        return str.length
-            ? str.charAt(0).toUpperCase() + str.slice(1)
-            : '';
-    };
+
     return (
         <View style={styles.container}>
             <View style={styles.postHeader}>
-                <Text style={styles.yellowText}>{capitalize(username)}</Text>
+                <Text style={styles.yellowText}>{capitalize(username)}{itsMe && ' (You)'}</Text>
                 <Text style={[styles.thinText, role == 'user' ? (styles.userColor) : (styles.adminColor)]}>{role}</Text>
             </View>
             <View style={styles.postBody}>
                 {
-                    isAdmin ? (
+                    canEdit ? (
                         isEditing? (
                             <TextInput
                                 value={text}
@@ -36,14 +33,15 @@ export default function Post({id, username, role, isAdmin, content, creation_dat
                         <Text style={styles.greyText}>{content}</Text>
                     )
                 }
-                <View style={[styles.postDate, isAdmin && { borderBottomColor: '#5b5b5b', borderBottomWidth: 1 }]}>
+                <View style={[styles.postDate, canEdit && { borderBottomColor: '#5b5b5b', borderBottomWidth: 1 }]}>
                     <Text style={styles.thinText}>{date.toLocaleString()}</Text>
                 </View>
             </View>
             
-            {isAdmin && (
+            {canEdit && (
                 <PostFooter
                     isEditing={isEditing}
+                    canDelete={canDelete}
                     setIsEditing={setIsEditing}
                     onDelete={onDelete}
                     onEdit={onEdit}

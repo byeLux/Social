@@ -2,7 +2,7 @@ import {View, Pressable, Text, StyleSheet} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
-export default function PostFooter({ isEditing, setIsEditing, onDelete, onEdit, id, text }) {
+export default function PostFooter({ isEditing, canDelete, setIsEditing, onDelete, onEdit, id, text }) {
     if (!isEditing) {
         return (
             <View style={styles.postFooter}>
@@ -15,15 +15,18 @@ export default function PostFooter({ isEditing, setIsEditing, onDelete, onEdit, 
                         <Ionicons name="create" size={24} color="green" />
                     </Pressable>
                 </View>
-                <View style={styles.buttonContainer}>
-                    <Pressable
-                        style={styles.buttonStyle}
-                        onPress={() => onDelete(id)}
-                        android_ripple={{ color: '#ff0000', borderless: false, foreground: true }}
-                    >
-                        <Ionicons name="trash" size={24} color="red" />
-                    </Pressable>
-                </View>
+                {
+                    (canDelete) &&
+                    <View style={styles.buttonContainer}>
+                        <Pressable
+                            style={styles.buttonStyle}
+                            onPress={() => onDelete(id)}
+                            android_ripple={{ color: '#ff0000', borderless: false, foreground: true }}
+                        >
+                            <Ionicons name="trash" size={24} color="red" />
+                        </Pressable>
+                    </View>
+                }
             </View>
         );
     }

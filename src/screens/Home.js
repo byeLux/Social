@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getPosts, createPost, updatePost, deletePost } from '../api/postService';
 import { getUser } from '../api/userService';
 import { useErrorHandling } from '../hooks/useErrorHandling.js';
+import { capitalize } from '../utils/stringUtils';
 
 export default function Home({token, onLogout}) {;
 
@@ -21,6 +22,10 @@ export default function Home({token, onLogout}) {;
     const [totalPages, setTotalPages] = useState(1);
 
     const [lastVisitedPage, setLastVisitedPage] = useState(1);
+
+    const [userName, setUserName] = useState();
+
+    const [userRole, setUserRole] = useState('');
 
     const { error, errorMessage, setError, setErrorMessage, withErrorHandling } = useErrorHandling();
 
@@ -37,6 +42,13 @@ export default function Home({token, onLogout}) {;
         if (!result) return;
         setPosts(result.posts);
         setTotalPages(result.pagination.total_pages);
+    }
+
+    async function loadUser(token) {
+        const result = await withErrorHandling(() => getUser(token), 'user');
+        if (!result) return;
+        setUserRole(result.role);
+        setUserName(result.username);
     }
 
     async function handlePublish(text) {
@@ -71,6 +83,7 @@ export default function Home({token, onLogout}) {;
                 withErrorHandling={withErrorHandling}
                 onLogout={onLogout}
                 token={token}
+                userName={capitalize(userName)}
             />
             {error ? (
                     <View>
@@ -85,14 +98,15 @@ export default function Home({token, onLogout}) {;
             }
             <FlatList
                 data={posts}
-                renderItem={({ item }) => <Post {...item} isAdmin={item.role === 'admin'} onDelete={handleDelete} onEdit={handleEdit}/>}
+                renderItem={({ item }) => <Post {...item} itsMe={item.username === userName} canDelete={userRole === 'admin'} canEdit={ userRole === 'admin' || userRole === 'mod' } onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
             />
             <Pagination 
                 totalPages={totalPages} 
                 setLastVisitedPage={setLastVisitedPage} 
-                loadPosts={loadPosts} 
+                loadPosts={loadPosts}
+                loadUser={loadUser} 
                 token={token}
                 currentPage={lastVisitedPage}
             /> 
