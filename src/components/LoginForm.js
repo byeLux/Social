@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {View, TextInput, Pressable, Text, StyleSheet, Button} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Error from './Error';
+import LabelAndInput from './LabelAndInput';
 import { login } from '../api/authService';
 
 
@@ -38,29 +39,21 @@ export default function LoginForm({ onLoginSuccess }) {
             <View style={styles.title}>
                 <Text style={[styles.yellowText, {fontSize: 35}]}>WELCOME BACK</Text>
             </View>
-            {/* 3. Ogni campo aggiorna il suo state */}
             <View style={styles.form} id='login-form'>
-                {/* style={[{marginBottom: 20}]} */}
-                <View>
-                    <Text style={[styles.yellowText, {fontSize: 25}]}>USERNAME</Text>
-                    <TextInput
-                        value={username}
-                        onChangeText={setUsername}
-                        placeholder="Username"
-                        style={styles.textInput}
-                    />
-                </View>
-                {/* style={[{marginBottom: 20}]} */}
-                <View>
-                    <Text style={[styles.yellowText, {fontSize: 25}]}>PASSWORD</Text>
-                    <TextInput
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="Password"
-                        secureTextEntry
-                        style={styles.textInput}
-                    />
-                </View>
+                <LabelAndInput
+                    label={"USERNAME"}
+                    inputValue={username}
+                    inputOnChangeText={setUsername}
+                    inputPlaceholder={"Username"}
+                    isSecure={false}
+                />
+                <LabelAndInput
+                    label={"PASSWORD"}
+                    inputValue={password}
+                    inputOnChangeText={setPassword}
+                    inputPlaceholder={"Password"}
+                    isSecure={true}
+                />
                 <View id='form-button-container'>
                     <Pressable onPress={async () => {
                         const ok = await handleSubmit();
