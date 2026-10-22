@@ -7,10 +7,10 @@ import Home from './src/screens/Home';
 export default function App() {
   const [tokenFromApi, setToken] = useState('');
 
-  useEffect(() => {
-    NavigationBar.setBackgroundColorAsync('#1a1a1a');
-    NavigationBar.setButtonStyleAsync('light'); // icone bianche
-  }, []);
+  // useEffect(() => {
+  //   //NavigationBar.setBackgroundColorAsync('#1a1a1a');
+  //   NavigationBar.setButtonStyleAsync('light'); // icone bianche
+  // }, []);
 
   return (
     <SafeAreaProvider>
