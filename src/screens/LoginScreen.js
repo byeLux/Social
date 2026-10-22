@@ -13,25 +13,37 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
     const [errorMessage, setErrorMessage] = useState('');
 
     async function handleSubmit() {
-        try {
-            const result = await login(username, password);
-            setError(false);
-            setErrorMessage('');
-            return result;
-        } catch (error) {
-            console.error('Full error:', error);
+    if (!username.trim() || !password) {
+        setErrorMessage('Please enter both username and password.');
+        setError(true);
+        return;
+    }
 
-            if (error.response) {
-                setErrorMessage('Login failed.\nPlease check your credentials.');
-            } else if (error.request) {
-                setErrorMessage('Network error.\nServer might be unreachable.');
-            } else {
-                setErrorMessage('An error occurred while trying to log in.\nPlease try again later.');
-            }
+    try {
+        const result = await login(username, password);
+
+        if (!result?.token) {
+            setErrorMessage('Login failed.\nInvalid server response.');
             setError(true);
             return;
         }
+
+        setError(false);
+        setErrorMessage('');
+        onLoginSuccess(result.token);
+    } catch (error) {
+        console.error('Full error:', error);
+
+        if (error.response) {
+            setErrorMessage('Login failed.\nPlease check your credentials.');
+        } else if (error.request) {
+            setErrorMessage('Network error.\nServer might be unreachable.');
+        } else {
+            setErrorMessage('An error occurred while trying to log in.\nPlease try again later.');
+        }
+        setError(true);
     }
+}
 
     return (
         <SafeAreaView style={styles.container}>

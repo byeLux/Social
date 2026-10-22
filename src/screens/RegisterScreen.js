@@ -36,7 +36,6 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin }) {
                 setErrorMessage('An error occurred while trying to register.\nPlease try again later.');
             }
             setError(true);
-            return;
         }
     }
 
