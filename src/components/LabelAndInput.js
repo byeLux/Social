@@ -2,7 +2,7 @@ import {View, TextInput, Text, StyleSheet} from 'react-native';
 
 export default function LabelAndInput({label, inputValue, inputOnChangeText, inputPlaceholder, isSecure}) {
     return (
-        <View>
+        <View style={[styles.marginBottom, styles.centerElements]}>
             <Text style={[styles.yellowText, {fontSize: 25}]}>{label}</Text>
             <TextInput
                 value={inputValue}
@@ -21,9 +21,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', 
     },
     textInput: {
+        height: 45,
+        width: 250,
         textAlign: 'center',
         backgroundColor: '#cfcfcf',
         borderRadius: 5,
     },
-
+    marginBottom: {
+        marginBottom: 20,
+    },
+    centerElements: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });

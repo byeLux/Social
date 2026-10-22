@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
 import {View, StyleSheet, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import HomeHeader from '../components/HomeHeader';
-import Post from '../components/Post';
-import Error from '../components/Error';
-import PostForm from '../components/PostForm';
-import Pagination from '../components/Pagination';
-import axios from 'axios';
-import { Ionicons } from '@expo/vector-icons';
-import { getPosts, createPost, updatePost, deletePost } from '../api/postService';
-import { getUser } from '../api/userService';
+import HomeHeader from '../components/HomeHeader.js';
+import Post from '../components/Post.js';
+import Error from '../components/Error.js';
+import PostForm from '../components/PostForm.js';
+import Pagination from '../components/Pagination.js';
+import { getPosts, createPost, updatePost, deletePost } from '../api/postService.js';
+import { getUser } from '../api/userService.js';
 import { useErrorHandling } from '../hooks/useErrorHandling.js';
-import { capitalize } from '../utils/stringUtils';
+import { capitalize } from '../utils/stringUtils.js';
 
-export default function Home({token, onLogout}) {;
-
-    const [lastId, setId] = useState();
+export default function HomeScreen({token, onLogout}) {
 
     const [posts, setPosts] = useState([]);
 

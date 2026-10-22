@@ -1,10 +1,16 @@
 import {View, Pressable, Text, StyleSheet, Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { logout } from '../api/authService';
 
 export default function HomeHeader({withErrorHandling, onLogout, token, userName}) {
 
-    function handleLogout() {
-        onLogout(true);
+    
+    async function handleLogout() {
+        try {
+            await logout(token);
+        } finally {
+            onLogout();
+        }
     }
 
     return (

@@ -1,24 +1,27 @@
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import * as NavigationBar from 'expo-navigation-bar';
-import LoginForm from './src/components/LoginForm';
-import Home from './src/screens/Home';
+import * as SecureStore from 'expo-secure-store';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import HomeScreen from './src/screens/HomeScreen';
 
 export default function App() {
-  const [tokenFromApi, setToken] = useState('');
+  const [token, setToken] = useState(null);
+  const [authScreen, setAuthScreen] = useState('login'); // 'login' | 'register'
 
-  // useEffect(() => {
-  //   //NavigationBar.setBackgroundColorAsync('#1a1a1a');
-  //   NavigationBar.setButtonStyleAsync('light'); // icone bianche
-  // }, []);
+  useEffect(() => {
+    SecureStore.getItemAsync('token')
+    .then((token) => { if (token) setToken(token); });
+  }, []);
 
-  return (
-    <SafeAreaProvider>
-      {
-        (tokenFromApi)
-        ? <Home token={tokenFromApi} onLogout={() => {setToken('');}} />
-        : <LoginForm onLoginSuccess={(token) => {setToken(token);}} />
-      }
-    </SafeAreaProvider>
-  );
+  let currentScreen = null;
+  if (token) {
+    currentScreen = <HomeScreen token={token} onLogout={() => setToken(null)} />;
+  } else if (authScreen === 'register') {
+    currentScreen = <RegisterScreen onRegisterSuccess={() => setAuthScreen('login')} onGoToLogin={() => setAuthScreen('login')}/>;
+  } else {
+    currentScreen = <LoginScreen onLoginSuccess={setToken} onGoToRegister={() => setAuthScreen('register')}/>;
+  }
+
+  return <SafeAreaProvider>{currentScreen}</SafeAreaProvider>;
 }
