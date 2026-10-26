@@ -1,18 +1,19 @@
+import { logError } from '../utils/errorHandling';
 // src/api/postsService.js
 import axiosClient from './axiosClient';
 
 export async function getPosts(page, token) {
-    const res = await axiosClient.get(`/Api/controller/PostController.php?page=${page}`, {
+    const res = await axiosClient.get('/posts', {
+        params: { page },
         headers: { Authorization: `Bearer ${token}` }
     });
     return res.data;
 }
 
 export async function createPost(content, token) {
-    console.log("creating post...");
     try {
             const res = await axiosClient.post(
-            '/Api/endpoint/createPost.php',
+            '/posts',
             { content },
             {
                 headers: {
@@ -22,20 +23,17 @@ export async function createPost(content, token) {
                 },
             }
         );
-        console.log("Repsonse della CREATE: " + res);
         return res;
     } catch (error) {
-        console.error('Full error:', error);
-        console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-        console.error('Method:', error.config?.method);
-        return error;
+        logError(error);
+        throw error;
     }
 }
 
 export async function updatePost(postId, editedContent, token) {
     try {
-        const res = await axiosClient.post(
-            '/Api/endpoint/editPost.php',
+        const res = await axiosClient.put(
+            `/posts/${encodeURIComponent(postId)}`,
             {
                 post_id: postId,
                 content: editedContent,
@@ -48,23 +46,17 @@ export async function updatePost(postId, editedContent, token) {
                 },
             }
         );
-        console.log("Repsonse della UPDATE: " + res);
         return res;
     } catch (error) {
-        console.error('Full error:', error);
-        console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-        console.error('Method:', error.config?.method);
-        return error;
+        logError(error);
+        throw error;
     } 
 }
 
 export async function deletePost(postId, token) {
     try {
-       const res = await axiosClient.post(
-            '/Api/endpoint/deletePost.php',
-            {
-                post_id: postId,
-            },
+       const res = await axiosClient.delete(
+            `/posts/${encodeURIComponent(postId)}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -73,12 +65,9 @@ export async function deletePost(postId, token) {
                 },
             }
         );
-        console.log("Repsonse della DELETE: " + res);
         return res; 
     } catch (error) {
-        console.error('Full error:', error);
-        console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-        console.error('Method:', error.config?.method);
-        return error;
+        logError(error);
+        throw error;
     }
 }

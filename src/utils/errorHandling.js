@@ -1,5 +1,7 @@
 export function logError(error) {
-    console.error('Full error:', error);
-    console.error('URL chiamato:', error.config?.baseURL, error.config?.url);
-    console.error('Method:', error.config?.method);
+    console.error('API request failed', {
+        status: error.response?.status,
+        code: error.code,
+        method: error.config?.method,
+    });
 }

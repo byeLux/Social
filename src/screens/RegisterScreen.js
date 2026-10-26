@@ -1,3 +1,4 @@
+import { logError } from '../utils/errorHandling';
 import { useState } from 'react';
 import {View, Pressable, Text, StyleSheet} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,13 +22,12 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin }) {
                 return;
             }
             const result = await register(username, password, repeatedPassword);
-            console.log('Registration successful:', result);
             setError(false);
             setErrorMessage('');
             return result;
         } catch (error) {
-            console.error('Full error:', error);
-            console.log('Registration failed:', error.response ? error.response.data : error.message);
+            logError(error);
+
             if (error.response) {
                 setErrorMessage('Registration failed.\nPlease check your credentials.');
             } else if (error.request) {
@@ -67,10 +67,14 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin }) {
                     isSecure={true}
                 />
                 <View id='form-button-container'>
-                    <Pressable onPress={async () => {
-                        const ok = await handleSubmit();
-                        if (ok.token) { onRegisterSuccess(ok.token); }
-                    }} style={styles.buttonStyle} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
+                    <Pressable 
+                        onPress={async () => {
+                            const ok = await handleSubmit();
+                            if (ok?.success) { onRegisterSuccess(); }
+                        }} 
+                        style={styles.buttonStyle} 
+                        android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}
+                    >
                         <Text style={styles.buttonText}>REGISTER</Text>
                     </Pressable>
                     <Text style={styles.greyText}>Already have an account? Log in</Text>

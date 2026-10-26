@@ -1,24 +1,28 @@
+import { logError } from '../utils/errorHandling';
 // src/api/authService.js
 import axiosClient from './axiosClient';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from '../utils/tokenStorage';
 
 export async function login(username, password) {
     try {
-        const res = await axiosClient.post('/Api/endpoint/login.php', { username, password });
+        const res = await axiosClient.post('/auth/login', { username, password });
         await SecureStore.setItemAsync('token', res.data.token);
         return res.data;
     } catch (error) {
-        console.error('Login failed:', error.response ? error.response.data : error.message);
+        logError(error);
+        throw error;
     }
 }
 
 
 export async function logout(token) {
     try {
-        const res = await axiosClient.post('/Api/endpoint/logout.php', { token });
+        const res = await axiosClient.post('/auth/logout', {}, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
         return res.data;
     } catch (error) {
-        console.error('Logout failed:', error.response ? error.response.data : error.message);
+        logError(error);
     } finally {
         await SecureStore.deleteItemAsync('token');
     }
@@ -26,9 +30,12 @@ export async function logout(token) {
 
 export async function register(username, password, confirmPassword) {
     try {
-        const res = await axiosClient.post('/Api/endpoint/register.php', { username, password, confirmPassword });
+        const res = await axiosClient.post('/auth/register', {
+            username, password, 'password-check': confirmPassword,
+        });
         return res.data;
     } catch (error) {
-        console.error('Registration failed:', error.response ? error.response.data : error.message);
+        logError(error);
+        throw error;
     }
 }

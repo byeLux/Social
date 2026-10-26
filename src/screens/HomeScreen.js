@@ -23,7 +23,7 @@ export default function HomeScreen({token, onLogout}) {
 
     const [userRole, setUserRole] = useState('');
 
-    const { error, errorMessage, setError, setErrorMessage, withErrorHandling } = useErrorHandling();
+    const { error, errorMessage, setError, setErrorMessage, withErrorHandling } = useErrorHandling(onLogout);
 
     // Helper per evitare di duplicare la validazione "post vuoto"
     function validateNotEmpty(text) {
@@ -105,7 +105,12 @@ export default function HomeScreen({token, onLogout}) {
             }
             <FlatList
                 data={posts}
-                renderItem={({ item }) => <Post {...item} itsMe={item.username === userName} canDelete={userRole === 'admin'} canEdit={ userRole === 'admin' || userRole === 'mod' } onDelete={handleDelete} onEdit={handleEdit}/>}
+                renderItem={({ item }) => 
+                    <Post {...item} 
+                        itsMe={item.username === userName} 
+                        canDelete={userRole === 'admin'} 
+                        canEdit={ userRole === 'admin' || userRole === 'mod' } 
+                        onDelete={handleDelete} onEdit={handleEdit}/>}
                 keyExtractor={item => item.id.toString()}
                 keyboardShouldPersistTaps="handled"
             />

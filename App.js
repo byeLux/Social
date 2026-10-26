@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from './src/utils/tokenStorage';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import HomeScreen from './src/screens/HomeScreen';
@@ -11,7 +11,8 @@ export default function App() {
 
   useEffect(() => {
     SecureStore.getItemAsync('token')
-    .then((token) => { if (token) setToken(token); });
+    .then((token) => { if (token) setToken(token); })
+    .catch(() => setToken(null));
   }, []);
 
   let currentScreen = null;

@@ -1,3 +1,4 @@
+import { logError } from '../utils/errorHandling';
 import { useState } from 'react';
 import {View, Pressable, Text, StyleSheet} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,7 +33,7 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
         setErrorMessage('');
         onLoginSuccess(result.token);
     } catch (error) {
-        console.error('Full error:', error);
+        logError(error);
 
         if (error.response) {
             setErrorMessage('Login failed.\nPlease check your credentials.');
@@ -66,10 +67,11 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
                     isSecure={true}
                 />
                 <View id='form-button-container'>
-                    <Pressable onPress={async () => {
-                        const ok = await handleSubmit();
-                        if (ok.token) { onLoginSuccess(ok.token); }
-                    }} style={styles.buttonStyle} android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}>
+                    <Pressable 
+                        onPress={handleSubmit} 
+                        style={styles.buttonStyle} 
+                        android_ripple={{ color: '#ff4800', borderless: false, foreground: true }}
+                    >
                         <Text style={styles.buttonText}>LOGIN</Text>
                     </Pressable>
                     <Text style={styles.greyText}>Not registered yet? Create an account</Text>
