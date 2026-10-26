@@ -1,6 +1,6 @@
 import { logError } from '../utils/errorHandling';
 import { useState } from 'react';
-import {View, Pressable, Text, StyleSheet} from 'react-native';
+import {View, Pressable, Text, StyleSheet, ScrollView} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Error from '../components/Error';
 import LabelAndInput from '../components/LabelAndInput';
@@ -48,6 +48,7 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <View style={styles.title}>
                 <Text style={[styles.yellowText, {fontSize: 35}]}>WELCOME BACK</Text>
             </View>
@@ -87,6 +88,7 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
             <View style={styles.footer}>
                 {error && <Error error={errorMessage} />}
             </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -94,12 +96,18 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'space-between',
         backgroundColor: '#202020'
     },
+    scroll: {
+        width: '100%',
+    },
+    content: {
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
     title: {
-        flex: 3,
+        paddingVertical: 32,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -112,7 +120,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     form: {
-        flex: 3,
+        flexShrink: 0,
         justifyContent: 'space-between',
     },
     buttonStyle: {
@@ -128,7 +136,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     footer: {
-        flex: 3,
+        width: '100%',
+        paddingBottom: 12,
         alignItems: 'center',
         justifyContent: 'center',
     },
