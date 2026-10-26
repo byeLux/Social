@@ -11,15 +11,15 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "axios": "^1.17.0",
-    "expo": "^57.0.31",
-    "expo-navigation-bar": "~57.0.3",
-    "expo-secure-store": "~57.0.4",
-    "expo-status-bar": "~57.0.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-native": "0.86.3",
+    "expo": "^58.0.0",
+    "expo-navigation-bar": "~58.0.4",
+    "expo-secure-store": "~58.0.2",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
     "react-native-dotenv": "^3.4.12",
-    "react-native-safe-area-context": "~5.7.0",
+    "react-native-safe-area-context": "~5.10.1",
     "react-native-web": "^0.21.2"
   },
   "private": true
